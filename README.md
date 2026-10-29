@@ -4,9 +4,9 @@
 AceIT is an all-in-one web-based academic organization platform built for university students. It streamlines semester management by combining syllabus deadline tracking, an interactive assignment calendar, weighted course gradebooks, and predictive GPA calculation into a single responsive interface.
 
 ## Team Members (Group 6)
-* **Alonzo** – Full-Stack Developer / GPA & Gradebook Logic / Repository Admin
-* **Quinn** – Frontend Developer / Interactive Calendar & UI Components
-* **Raena** – Backend & Database Developer / Course & Syllabus Management
+* **Alonzo** 
+* **Quinn** 
+* **Raena**
 
 ## Major Features
 * **Course Management:** Add, edit, and organize semester courses with credit hours, instructor info, and meeting times.
