@@ -25,3 +25,13 @@ AceIT is an all-in-one web-based academic organization platform built for univer
 1. Clone the repository to your local machine:
    ```bash
    git clone [https://github.com/your-username/aceit-academic-planner.git](https://github.com/your-username/aceit-academic-planner.git)
+## How to run the project
+npm start
+## Current Project Status
+Course creation, GPA calculation logic, and base calendar views are functional. Database persistence and weighted syllabus breakdowns are actively being integrated.
+## Known Issues or Limitations
+Syllabus weight percentages currently require manual verification to ensure they sum to exactly 100%.
+
+Recurring calendar events do not yet auto-populate across the entire semester range upon single entry.
+
+Mobile responsiveness on screens narrower than 375px requires minor CSS grid adjustments.
