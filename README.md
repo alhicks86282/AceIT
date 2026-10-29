@@ -16,9 +16,9 @@ AceIT is an all-in-one web-based academic organization platform built for univer
 * **GPA Calculator:** Compute semester and cumulative GPA dynamically based on credit hours and letter grades.
 
 ## Technologies Used
-* **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+* **Frontend:** HTML5, CSS3, JavaScript 
 * **Backend / Runtime:** Node.js, Express.js
-* **Database:** SQLite / LocalStorage (Prototype phase)
+* **Database:** SQLite / LocalStorage
 * **Version Control & Project Management:** Git, GitHub, GitHub Issues
 
 ## Setup & Installation Instructions
