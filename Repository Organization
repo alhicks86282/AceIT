@@ -1,0 +1,34 @@
+AceIT/
+├── README.md                           # Project overview, installation, and setup instructions
+├── package.json                        # Node.js dependencies, scripts, and project metadata
+├── .gitignore                          # Ignores node_modules, local environment configs, and temp files
+│
+├── docs/                               # Project documentation and specifications
+│   ├── requirements_specification.md   # Functional and non-functional requirements
+│   ├── user_stories.md                 # User scenarios, acceptance criteria, and edge cases
+│   └── api_endpoints.md                # REST API route specifications and payload formats
+│
+├── diagrams/                           # Architectural and design visuals
+│   ├── system_architecture.png         # High-level client-server system flow
+│   ├── erd_schema.png                  # Entity-relationship diagram for data entities
+│   └── uml_use_case.png                # Core actor and system interactions
+│
+├── database/                           # Persistence and schema management
+│   ├── schema.sql                      # Table definitions for courses, assignments, and grades
+│   └── seed_data.sql                   # Sample mock data for local testing and demonstration
+│
+├── src/                                # Core application source code
+│   ├── index.js                        # Express server entry point and API route mounts
+│   ├── components/                     # Modular frontend/UI feature handlers
+│   │   ├── CalendarView.js             # Daily, weekly, and monthly deadline rendering
+│   │   ├── CourseManager.js            # Course CRUD, credit tracking, and meeting times
+│   │   ├── Gradebook.js                # Category-weighted grade evaluation
+│   │   └── GPACalculator.js            # Dynamic semester and cumulative GPA calculation
+│   ├── styles/                         # UI stylesheets
+│   │   └── main.css                    # Responsive layout, modern dashboard styling, and dark/light themes
+│   └── utils/                          # Reusable helper functions
+│       └── gpaFormulas.js              # Grade point conversions and credit-weighting algorithms
+│
+└── tests/                              # Automated unit and integration test suites
+    ├── gpaCalculator.test.js           # Unit tests validating weighted GPA math and edge cases
+    └── courseValidation.test.js        # Input validation checks for syllabus weights and course fields
