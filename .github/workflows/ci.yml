@@ -1,0 +1,41 @@
+name: AceIT CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (for JS Modules)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java (for Student Advisory Tracker)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compile Java Student Advisory Tracker
+        run: |
+          echo "Compiling Java backend..."
+          javac src/advisory/StudentAdvisoryTracker.java
+
+      - name: Run Java Advisory Tracker Tests
+        run: |
+          echo "Executing Java Main simulation..."
+          java -cp src advisory.StudentAdvisoryTracker
+
+      - name: Verify JavaScript syntax / structure
+        run: |
+          echo "Verifying JS files..."
+          node -c public/app.js formulas/gpa.js src/components/CourseManager.js
