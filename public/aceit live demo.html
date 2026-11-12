@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AceIT — Academic Organization Platform (CSC 380 Live Demo)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#0f172a',
+            },
+            accent: {
+              500: '#f97316',
+              600: '#ea580c',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Smooth custom scrollbars and transitions */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .fade-in { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
+
+  <!-- Top Demo Helper Bar -->
+  <div id="presenter-bar" class="bg-slate-900 text-slate-100 border-b border-slate-800 px-4 py-2.5 text-xs sm:text-sm transition-all">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-mono font-semibold text-xs border border-orange-500/30">
+          <i class="fa-solid fa-bolt mr-1"></i>CSC 380 LIVE DEMO
+        </span>
+        <span id="presenter-cue" class="text-slate-300 font-medium">
+          Interactive Academic Organization Platform — Course Management, Syllabus Tracker, Multi-View Calendar &amp; GPA Analytics.
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="loadSampleData()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-xs border border-slate-700 transition">
+          <i class="fa-solid fa-rotate-left mr-1"></i>Reset Demo Data
+        </button>
+        <button onclick="togglePresenterBar()" class="text-slate-400 hover:text-white px-1.5" title="Hide Bar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Wrapper -->
+  <div class="flex-1 flex flex-col lg:flex-row max-w-7xl w-full mx-auto my-4 px-4 gap-6">
+
+    <!-- Left Navigation Sidebar -->
+    <aside class="w-full lg:w-64 shrink-0 flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+      <div>
+        <!-- Brand Logo -->
+        <div class="flex items-center justify-between px-2 pb-4 mb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-sm shadow-blue-600/30">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+              <h1 class="font-extrabold text-xl tracking-tight text-slate-900 leading-none">AceIT</h1>
+              <p class="font-mono text-[11px] text-slate-500 mt-0.5">v1.0 • CSC 380</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+            Online
+          </span>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="space-y-1.5" aria-label="Main Navigation">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white shadow-sm">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-table-columns w-4 text-center"></i>
+              <span>Overview</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('courses')" id="nav-courses" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-book-open w-4 text-center"></i>
+              <span>Courses</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('assignments')" id="nav-assignments" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-list-check w-4 text-center"></i>
+              <span>Syllabus & Tasks</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-calendar-days w-4 text-center"></i>
+              <span>Calendar</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('gradebook')" id="nav-gradebook" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+              <span>Gradebook</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('gpa')" id="nav-gpa" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-calculator w-4 text-center"></i>
+              <span>GPA Calculator</span>
+            </span>
+          </button>
+
+          <button onclick="switchTab('architecture')" id="nav-architecture" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-code-branch w-4 text-center"></i>
+              <span>Tech & Status</span>
+            </span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Architecture & Storage Status Card -->
+      <div class="mt-6 pt-4 border-t border-slate-100">
+        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/70">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5">
+            <span><i class="fa-solid fa-database text-blue-600 mr-1.5"></i>Storage Layer</span>
+            <span class="font-mono text-[11px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Hybrid</span>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            In-Memory Session Active • SQLite Persistence (<span class="text-amber-600 font-medium">WIP</span>)
+          </p>
+          <a href="https://github.com/alhicks86282/AceIT" target="_blank" rel="noopener noreferrer" class="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 text-xs font-mono font-medium text-slate-700 hover:text-blue-600 bg-white py-1.5 px-2.5 rounded-lg border border-slate-200 shadow-2xs transition">
+            <i class="fa-brands fa-github"></i> alhicks86282/AceIT
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Dynamic Content Area -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+      <!-- Toast Message Notification Box (No browser alerts!) -->
+      <div id="toast-box" class="hidden fixed bottom-5 right-5 z-50 max-w-sm bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3 fade-in">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <div class="text-sm font-medium" id="toast-message">Action completed!</div>
+      </div>
+
+      <!-- ==========================================
+           TAB 1: OVERVIEW DASHBOARD (RAENA INTRO)
+           ========================================== -->
+      <section id="tab-dashboard" class="tab-panel fade-in space-y-6">
+        <!-- Hero Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 rounded-2xl p-6 sm:p-8 text-white shadow-sm relative overflow-hidden">
+          <div class="relative z-10 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-mono mb-3">
+              <span>CSC 380 SOFTWARE ENGINEERING PROJECT</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Welcome back to AceIT</h2>
+            <p class="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
+              Your all-in-one academic organization platform uniting course management, syllabus tracking, interactive calendars, weighted gradebooks, and GPA forecasting.
+            </p>
+            <div class="mt-5 flex flex-wrap gap-3">
+              <button onclick="switchTab('courses')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Manage Courses
+              </button>
+              <button onclick="switchTab('gpa')" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/15 transition flex items-center gap-2">
+                <i class="fa-solid fa-calculator"></i> Open GPA Calculator
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onclick="switchTab('courses')" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono uppercase tracking-wider text-slate-500">Enrolled Courses</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-book"></i></span>
+            </div>
+            <p id="stat-courses-count" class="text-3xl font-extrabold text-slate-900 mt-3">4</p>
+            <p id="stat-credits-total" class="text-xs text-slate-500 mt-1">14 Total Credit Hours</p>
+          </div>
+
+          <div onclick="switchTab('assignments')" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono uppercase tracking-wider text-slate-500">Pending Tasks</span>
+              <span class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center"><i class="fa-solid fa-list-check"></i></span>
+            </div>
+            <p id="stat-tasks-pending" class="text-3xl font-extrabold text-slate-900 mt-3">5</p>
+            <p class="text-xs text-slate-500 mt-1">Syllabus & Exam Deadlines</p>
+          </div>
+
+          <div onclick="switchTab('gradebook')" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono uppercase tracking-wider text-slate-500">CSC 380 Standing</span>
+              <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+            <p id="stat-csc380-avg" class="text-3xl font-extrabold text-slate-900 mt-3">93.4%</p>
+            <p class="text-xs text-emerald-600 font-medium mt-1">Weighted Grade: A</p>
+          </div>
+
+          <div onclick="switchTab('gpa')" class="cursor-pointer bg-white p-5 rounded-2xl border border-slate-200/80 shadow-2xs hover:border-blue-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono uppercase tracking-wider text-slate-500">Projected Semester GPA</span>
+              <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-award"></i></span>
+            </div>
+            <p id="stat-semester-gpa" class="text-3xl font-extrabold text-blue-600 mt-3">3.79</p>
+            <p id="stat-cumulative-gpa" class="text-xs text-slate-500 mt-1">Est. Cumulative: 3.68</p>
+          </div>
+        </div>
+
+        <!-- Quick Split View: Courses + Upcoming Deadlines -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-blue-600"></i> Active Semester Courses
+              </h3>
+              <button onclick="switchTab('courses')" class="text-xs font-semibold text-blue-600 hover:underline">View All →</button>
+            </div>
+            <div id="dashboard-course-list" class="space-y-3"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-regular fa-clock text-orange-500"></i> Upcoming Deadlines
+              </h3>
+              <button onclick="switchTab('calendar')" class="text-xs font-semibold text-blue-600 hover:underline">Open Calendar →</button>
+            </div>
+            <div id="dashboard-deadline-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 2: COURSE MANAGEMENT (ALONZO DEMO)
+           ========================================== -->
+      <section id="tab-courses" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-mono uppercase text-blue-600 font-semibold">Feature 01 • Functional Demo</span>
+              <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Course Management</h2>
+              <p class="text-sm text-slate-500">Add and organize courses, credit hours, instructors, and meeting times.</p>
+            </div>
+          </div>
+
+          <!-- Add New Course Form -->
+          <form id="course-form" onsubmit="handleAddCourse(event)" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+            <div class="lg:col-span-1">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Course Code *</label>
+              <input type="text" id="course-code" required placeholder="e.g. CSC 410" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Course Title *</label>
+              <input type="text" id="course-name" required placeholder="e.g. Artificial Intelligence" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Credits *</label>
+              <select id="course-credits" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="1">1 Credit</option>
+                <option value="2">2 Credits</option>
+                <option value="3" selected>3 Credits</option>
+                <option value="4">4 Credits</option>
+                <option value="5">5 Credits</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Instructor *</label>
+              <input type="text" id="course-instructor" required placeholder="Dr. Smith" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Meeting Schedule *</label>
+              <div class="flex gap-2">
+                <input type="text" id="course-schedule" required placeholder="MWF 11:00 AM" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shrink-0 transition shadow-2xs">
+                  <i class="fa-solid fa-plus"></i> Add
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Courses Grid -->
+          <div id="courses-grid" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 3: SYLLABUS & ASSIGNMENT TRACKER
+           ========================================== -->
+      <section id="tab-assignments" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-mono uppercase text-blue-600 font-semibold">Feature 02 • Functional Demo</span>
+              <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Syllabus & Assignment Tracker</h2>
+              <p class="text-sm text-slate-500">Track upcoming assignments, exams, projects, and their due dates across all courses.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-semibold text-slate-500">Filter:</label>
+              <select id="assignment-filter-course" onchange="renderAssignments()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm bg-white">
+                <option value="ALL">All Courses</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add Assignment Form -->
+          <form onsubmit="handleAddAssignment(event)" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+            <div class="lg:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Assignment / Exam Title *</label>
+              <input type="text" id="task-title" required placeholder="e.g. Final Architecture Report" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Course *</label>
+              <select id="task-course" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Category *</label>
+              <select id="task-category" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm">
+                <option value="Exams">Exams</option>
+                <option value="Projects">Projects</option>
+                <option value="Homework" selected>Homework</option>
+                <option value="Quizzes">Quizzes</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Due Date *</label>
+              <input type="date" id="task-date" required class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Score (%) Optional</label>
+              <div class="flex gap-2">
+                <input type="number" id="task-score" min="0" max="100" placeholder="e.g. 95" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm">
+                <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shrink-0 transition">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Assignment Table -->
+          <div class="mt-6 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-xs font-mono uppercase text-slate-500">
+                  <th class="py-3 px-3">Done</th>
+                  <th class="py-3 px-3">Deliverable</th>
+                  <th class="py-3 px-3">Course</th>
+                  <th class="py-3 px-3">Category</th>
+                  <th class="py-3 px-3">Due Date</th>
+                  <th class="py-3 px-3">Grade</th>
+                  <th class="py-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="assignments-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 4: INTERACTIVE MULTI-VIEW CALENDAR
+           ========================================== -->
+      <section id="tab-calendar" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-mono uppercase text-blue-600 font-semibold">Feature 03 • Functional Demo</span>
+              <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Interactive Deadline Calendar</h2>
+              <p class="text-sm text-slate-500">Switch between Day, Week, and Month views to visualize upcoming coursework.</p>
+            </div>
+
+            <!-- Day / Week / Month Switcher -->
+            <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+              <button onclick="setCalendarView('day')" id="cal-btn-day" class="cal-view-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 transition">Day</button>
+              <button onclick="setCalendarView('week')" id="cal-btn-week" class="cal-view-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 transition">Week</button>
+              <button onclick="setCalendarView('month')" id="cal-btn-month" class="cal-view-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-blue-600 shadow-2xs transition">Month</button>
+            </div>
+          </div>
+
+          <!-- Limitation Transparency Banner -->
+          <div class="mt-4 bg-amber-50/80 border border-amber-200/80 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-amber-900">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-screwdriver-wrench text-amber-600"></i>
+              <span><strong>System Status Note:</strong> Single-date syllabus deadlines populate dynamically across Day, Week, and Month views. Automatic semester-long recurring lecture population is currently in progress.</span>
+            </div>
+          </div>
+
+          <!-- Calendar Controls Header -->
+          <div class="mt-5 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button onclick="shiftCalendar(-1)" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <h3 id="calendar-header-label" class="text-lg font-bold text-slate-900 min-w-[180px] text-center">May 2025</h3>
+              <button onclick="shiftCalendar(1)" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+              <button onclick="resetCalendarToday()" class="ml-2 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-600">
+                Demo Week
+              </button>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Exam</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Project</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Homework</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Calendar Viewport -->
+          <div id="calendar-viewport" class="mt-4"></div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 5: WEIGHTED GRADEBOOK (ALONZO & QUINN)
+           ========================================== -->
+      <section id="tab-gradebook" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-mono uppercase text-blue-600 font-semibold">Feature 04 • Functional Demo</span>
+              <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Weighted Course Gradebook</h2>
+              <p class="text-sm text-slate-500">Calculate real-time standing in a course based on weighted syllabus categories.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-semibold text-slate-600">Select Course:</label>
+              <select id="gradebook-course-select" onchange="renderGradebook()" class="px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-semibold text-sm text-slate-900"></select>
+            </div>
+          </div>
+
+          <!-- Syllabus Weight Editor & Manual 100% Check Banner (Matches Quinn's Script) -->
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 text-base">Syllabus Category Weights & Averages</h3>
+                <span id="weight-total-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Total Weight: 100%
+                </span>
+              </div>
+
+              <!-- Dynamic Category Rows -->
+              <div id="gradebook-categories-list" class="space-y-3"></div>
+
+              <!-- Limitation Callout Box -->
+              <div id="weight-warning-box" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
+                <div>
+                  <strong>Known Limitation:</strong> Syllabus category percentages must be manually verified to ensure they sum to 100%. Adjust a weight above to see how unvalidated totals are flagged.
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Course Standing Card -->
+            <div class="bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between">
+              <div>
+                <span class="text-xs font-mono uppercase text-blue-400">Calculated Course Standing</span>
+                <h4 id="gb-course-title" class="text-lg font-bold mt-1">CSC 380 - Software Engineering</h4>
+                <div class="my-6 flex items-baseline gap-3">
+                  <span id="gb-numeric-grade" class="text-5xl font-extrabold tracking-tight text-white">93.4%</span>
+                  <span id="gb-letter-grade" class="px-3 py-1 rounded-xl bg-blue-600 text-white font-mono font-bold text-xl">A</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Standing is dynamically computed from graded syllabus deliverables weighted by category percentage.
+                </p>
+              </div>
+
+              <!-- Quick Grade Simulator -->
+              <div class="mt-6 pt-4 border-t border-slate-800">
+                <p class="text-xs font-mono uppercase text-orange-400 mb-2">Quick What-If Score Update</p>
+                <p class="text-xs text-slate-300 mb-3">Adjust category averages on the left to immediately preview final course letter grade impact.</p>
+                <button onclick="syncGradebookToGPA()" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-arrows-rotate"></i> Sync Course Grade to GPA Calculator
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 6: GPA CALCULATOR
+           ========================================== -->
+      <section id="tab-gpa" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-mono uppercase text-orange-600 font-semibold">Feature 05 • Functional Demo</span>
+              <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Semester & Cumulative GPA Calculator</h2>
+              <p class="text-sm text-slate-500">Calculate semester GPA from course grades and credit hours, and estimate cumulative GPA standing.</p>
+            </div>
+            <button onclick="addGpaRow()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition flex items-center gap-2 self-start sm:self-auto">
+              <i class="fa-solid fa-plus"></i> Add Custom Course Row
+            </button>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left 2 Columns: Semester Courses Table & Prior Cumulative Inputs -->
+            <div class="lg:col-span-2 space-y-5">
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                  <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Prior Academic Record (For Cumulative GPA Projection)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Prior Cumulative GPA (0.00 – 4.00)</label>
+                    <input type="number" id="prior-gpa" step="0.01" min="0" max="4.0" value="3.62" oninput="calculateGPA()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Prior Completed Credit Hours</label>
+                    <input type="number" id="prior-credits" min="0" max="200" value="45" oninput="calculateGPA()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Current Semester Course Grade Rows -->
+              <div class="space-y-2.5" id="gpa-courses-container"></div>
+            </div>
+
+            <!-- Right Column: Live GPA Output Cards -->
+            <div class="space-y-4">
+              <div class="bg-blue-600 text-white rounded-2xl p-6 shadow-sm">
+                <span class="text-xs font-mono uppercase tracking-wider text-blue-200">Current Term</span>
+                <h3 class="text-base font-bold mt-0.5">Semester GPA</h3>
+                <p id="gpa-semester-display" class="text-6xl font-extrabold font-mono tracking-tight my-4">3.79</p>
+                <div class="flex items-center justify-between text-xs text-blue-100 pt-3 border-t border-blue-500">
+                  <span id="gpa-semester-credits">14 Semester Credits</span>
+                  <span id="gpa-semester-points">53.0 Quality Points</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm">
+                <span class="text-xs font-mono uppercase tracking-wider text-orange-400">Overall Forecast</span>
+                <h3 class="text-base font-bold mt-0.5">Estimated Cumulative GPA</h3>
+                <p id="gpa-cumulative-display" class="text-5xl font-extrabold font-mono tracking-tight my-4 text-emerald-400">3.66</p>
+                <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800">
+                  <span id="gpa-total-credits">59 Total Credits</span>
+                  <span>4.00 Standard Scale</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 7: ARCHITECTURE & STATUS
+           ========================================== -->
+      <section id="tab-architecture" class="tab-panel hidden fade-in space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-6">
+          <div class="border-b border-slate-100 pb-4">
+            <span class="text-xs font-mono uppercase text-blue-600 font-semibold">System Overview • Architecture & Project Status</span>
+            <h2 class="text-2xl font-bold text-slate-900 mt-0.5">Software Architecture & Current Project Status</h2>
+            <p class="text-sm text-slate-500">System stack, GitHub repository collaboration workflow, working features, and active work in progress.</p>
+          </div>
+
+          <!-- 4-Pillar Tech Stack -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-laptop-code text-blue-600 text-xl mb-2"></i>
+              <h3 class="font-bold text-slate-900 text-sm">Frontend UI</h3>
+              <p class="text-xs text-slate-600 mt-1">HTML5, CSS3, and Vanilla JavaScript for responsive layout and interactive views.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-server text-blue-600 text-xl mb-2"></i>
+              <h3 class="font-bold text-slate-900 text-sm">Backend Engine</h3>
+              <p class="text-xs text-slate-600 mt-1">Node.js & Express.js handling REST API routing and application logic.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-solid fa-database text-blue-600 text-xl mb-2"></i>
+              <h3 class="font-bold text-slate-900 text-sm">Data Storage</h3>
+              <p class="text-xs text-slate-600 mt-1">SQLite relational schema paired with client-side state management.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+              <i class="fa-brands fa-github text-orange-500 text-xl mb-2"></i>
+              <h3 class="font-bold text-slate-900 text-sm">GitHub & .github</h3>
+              <p class="text-xs text-slate-600 mt-1">Version control, branch workflows, and issue tracking in <code class="font-mono">alhicks86282/AceIT</code>.</p>
+            </div>
+          </div>
+
+          <!-- Comparison: Working vs WIP -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200">
+              <h3 class="font-bold text-emerald-950 flex items-center gap-2 text-base mb-3">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Functional Today
+              </h3>
+              <ul class="space-y-2.5 text-sm text-emerald-900">
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i> <span><strong>Course Creation:</strong> Add courses, credit hours, instructors, and meeting schedules.</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i> <span><strong>GPA Calculator:</strong> Real-time semester and cumulative GPA projections.</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i> <span><strong>Basic Calendar Views:</strong> Interactive Day, Week, and Month deadline views.</span></li>
+              </ul>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-amber-50/70 border border-amber-200">
+              <h3 class="font-bold text-amber-950 flex items-center gap-2 text-base mb-3">
+                <i class="fa-solid fa-person-digging text-amber-600"></i> Work in Progress & Known Limitations
+              </h3>
+              <ul class="space-y-2.5 text-sm text-amber-900">
+                <li class="flex items-start gap-2"><i class="fa-solid fa-wrench text-amber-600 mt-1 text-xs"></i> <span><strong>Database Persistence:</strong> Completing full SQLite backend persistence integration.</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-wrench text-amber-600 mt-1 text-xs"></i> <span><strong>Syllabus Percentages:</strong> Category weights currently require manual verification to sum to 100%.</span></li>
+                <li class="flex items-start gap-2"><i class="fa-solid fa-wrench text-amber-600 mt-1 text-xs"></i> <span><strong>Recurring Calendar Events:</strong> Automatic population of recurring class events across the full semester.</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // Standard 4.0 Academic Grade Scale
+    const GRADE_POINTS = {
+      'A': 4.0, 'A-': 3.7,
+      'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+      'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+      'D+': 1.3, 'D': 1.0, 'F': 0.0
+    };
+
+    // In-Memory State (Pre-populated for seamless CSC 380 live demo)
+    let state = {
+      activeTab: 'dashboard',
+      calendarView: 'month',
+      calendarFocusDate: new Date(2025, 4, 15), // May 15, 2025 demo anchor
+      courses: [],
+      assignments: [],
+      gradebookWeights: {}
+    };
+
+    function getInitialDemoData() {
+      return {
+        courses: [
+          {
+            id: 'c1',
+            code: 'CSC 380',
+            name: 'Software Engineering',
+            credits: 4,
+            instructor: 'Dr. Henderson',
+            schedule: 'MWF 10:00 AM - 10:50 AM',
+            letterGrade: 'A',
+            color: 'blue'
+          },
+          {
+            id: 'c2',
+            code: 'CSC 340',
+            name: 'Database Systems',
+            credits: 3,
+            instructor: 'Prof. Martinez',
+            schedule: 'TTh 1:30 PM - 2:45 PM',
+            letterGrade: 'A-',
+            color: 'indigo'
+          },
+          {
+            id: 'c3',
+            code: 'MAT 260',
+            name: 'Linear Algebra',
+            credits: 4,
+            instructor: 'Dr. Chen',
+            schedule: 'MWF 1:00 PM - 1:50 PM',
+            letterGrade: 'B+',
+            color: 'emerald'
+          },
+          {
+            id: 'c4',
+            code: 'ENG 210',
+            name: 'Technical Writing',
+            credits: 3,
+            instructor: 'Prof. Davis',
+            schedule: 'TTh 11:00 AM - 12:15 PM',
+            letterGrade: 'A',
+            color: 'orange'
+          }
+        ],
+        assignments: [
+          { id: 'a1', title: 'AceIT Group Presentation & Demo', courseId: 'c1', category: 'Projects', dueDate: '2025-05-15', score: 96, completed: false },
+          { id: 'a2', title: 'SQLite Schema & Express API PR', courseId: 'c2', category: 'Projects', dueDate: '2025-05-16', score: 92, completed: false },
+          { id: 'a3', title: 'Eigenvalues Problem Set #6', courseId: 'c3', category: 'Homework', dueDate: '2025-05-14', score: 88, completed: true },
+          { id: 'a4', title: 'Software Requirements Spec Quiz', courseId: 'c1', category: 'Quizzes', dueDate: '2025-05-12', score: 94, completed: true },
+          { id: 'a5', title: 'CSC 380 Midterm Exam', courseId: 'c1', category: 'Exams', dueDate: '2025-05-08', score: 92, completed: true },
+          { id: 'a6', title: 'Sprint 3 Backlog & Retro Doc', courseId: 'c1', category: 'Homework', dueDate: '2025-05-19', score: 95, completed: false },
+          { id: 'a7', title: 'Final Technical Manual Draft', courseId: 'c4', category: 'Projects', dueDate: '2025-05-21', score: 97, completed: false }
+        ],
+        gradebookWeights: {
+          'c1': [
+            { category: 'Exams', weight: 40, avg: 92 },
+            { category: 'Projects', weight: 25, avg: 96 },
+            { category: 'Homework', weight: 20, avg: 94 },
+            { category: 'Quizzes', weight: 15, avg: 92 }
+          ],
+          'c2': [
+            { category: 'Exams', weight: 45, avg: 89 },
+            { category: 'Projects', weight: 30, avg: 93 },
+            { category: 'Homework', weight: 15, avg: 91 },
+            { category: 'Quizzes', weight: 10, avg: 90 }
+          ],
+          'c3': [
+            { category: 'Exams', weight: 50, avg: 85 },
+            { category: 'Projects', weight: 15, avg: 90 },
+            { category: 'Homework', weight: 20, avg: 88 },
+            { category: 'Quizzes', weight: 15, avg: 87 }
+          ],
+          'c4': [
+            { category: 'Exams', weight: 30, avg: 95 },
+            { category: 'Projects', weight: 40, avg: 97 },
+            { category: 'Homework', weight: 20, avg: 94 },
+            { category: 'Quizzes', weight: 10, avg: 96 }
+          ]
+        }
+      };
+    }
+
+    // Toast notification helper
+    function showToast(message, iconClass = 'fa-solid fa-circle-check text-emerald-400') {
+      const box = document.getElementById('toast-box');
+      const msg = document.getElementById('toast-message');
+      const icon = document.getElementById('toast-icon');
+      msg.textContent = message;
+      icon.className = `${iconClass} text-lg`;
+      box.classList.remove('hidden');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => box.classList.add('hidden'), 3200);
+    }
+
+    function togglePresenterBar() {
+      document.getElementById('presenter-bar').classList.toggle('hidden');
+    }
+
+    // Load or reset sample data
+    function loadSampleData() {
+      const demo = getInitialDemoData();
+      state.courses = JSON.parse(JSON.stringify(demo.courses));
+      state.assignments = JSON.parse(JSON.stringify(demo.assignments));
+      state.gradebookWeights = JSON.parse(JSON.stringify(demo.gradebookWeights));
+      refreshAllViews();
+      showToast('Demo data reset to CSC 380 presentation defaults');
+    }
+
+    // Navigation & Presenter Cue Sync
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = 'nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all';
+      });
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = 'nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white shadow-sm';
+      }
+
+      // Update Top Status Bar Description
+      const cues = {
+        dashboard: '<strong>Overview Dashboard:</strong> Unifying classes, assignments, exams, and grades into one convenient student platform.',
+        courses: '<strong>Course Management:</strong> Add and organize course names, credit hours, instructor info, and meeting times.',
+        assignments: '<strong>Syllabus & Assignment Tracker:</strong> Log exams, projects, and homework due dates across all courses.',
+        calendar: '<strong>Interactive Calendar:</strong> Toggle Day, Week, and Month views to visualize upcoming deadlines.',
+        gradebook: '<strong>Weighted Gradebook:</strong> Calculate course standing from weighted categories with a 100% syllabus weight check.',
+        gpa: '<strong>GPA Calculator:</strong> Calculate semester GPA from course grades/credits and estimate cumulative GPA.',
+        architecture: '<strong>Tech Stack & Status:</strong> HTML/CSS/JS + Node/Express + SQLite architecture, GitHub workflow, and WIP items.'
+      };
+      document.getElementById('presenter-cue').innerHTML = cues[tabId] || '';
+      refreshAllViews();
+    }
+
+    function refreshAllViews() {
+      populateCourseDropdowns();
+      renderDashboard();
+      renderCourses();
+      renderAssignments();
+      renderCalendar();
+      renderGradebook();
+      renderGpaCourses();
+      calculateGPA();
+    }
+
+    function populateCourseDropdowns() {
+      const filterSelect = document.getElementById('assignment-filter-course');
+      const taskCourseSelect = document.getElementById('task-course');
+      const gbSelect = document.getElementById('gradebook-course-select');
+
+      const currentFilter = filterSelect.value || 'ALL';
+      const currentGb = gbSelect.value || (state.courses[0]?.id ?? '');
+
+      filterSelect.innerHTML = '<option value="ALL">All Courses</option>' +
+        state.courses.map(c => `<option value="${c.id}">${c.code} — ${c.name}</option>`).join('');
+      filterSelect.value = currentFilter;
+
+      taskCourseSelect.innerHTML = state.courses.map(c => `<option value="${c.id}">${c.code}</option>`).join('');
+
+      gbSelect.innerHTML = state.courses.map(c => `<option value="${c.id}">${c.code} — ${c.name}</option>`).join('');
+      if (state.courses.some(c => c.id === currentGb)) {
+        gbSelect.value = currentGb;
+      }
+    }
+
+    // ==========================================
+    // DASHBOARD RENDERER
+    // ==========================================
+    function renderDashboard() {
+      const totalCredits = state.courses.reduce((sum, c) => sum + Number(c.credits), 0);
+      const pendingTasks = state.assignments.filter(a => !a.completed).length;
+
+      document.getElementById('stat-courses-count').textContent = state.courses.length;
+      document.getElementById('stat-credits-total').textContent = `${totalCredits} Total Credit Hours`;
+      document.getElementById('stat-tasks-pending').textContent = pendingTasks;
+
+      const courseListEl = document.getElementById('dashboard-course-list');
+      courseListEl.innerHTML = state.courses.map(c => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800">${c.code}</span>
+              <span class="font-semibold text-sm text-slate-900">${c.name}</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-user mr-1"></i>${c.instructor} • ${c.schedule}</p>
+          </div>
+          <div class="text-right">
+            <span class="font-mono font-bold text-sm text-slate-900">${c.letterGrade}</span>
+            <p class="text-[11px] text-slate-500">${c.credits} Cr</p>
+          </div>
+        </div>
+      `).join('');
+
+      const deadlineListEl = document.getElementById('dashboard-deadline-list');
+      const sortedTasks = [...state.assignments].sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, 4);
+      deadlineListEl.innerHTML = sortedTasks.map(a => {
+        const course = state.courses.find(c => c.id === a.courseId);
+        return `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAssignmentDone('${a.id}')" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+              <div>
+                <p class="text-sm font-semibold ${a.completed ? 'line-through text-slate-400' : 'text-slate-900'}">${a.title}</p>
+                <p class="text-xs text-slate-500">${course ? course.code : 'Course'} • ${a.category}</p>
+              </div>
+            </div>
+            <span class="font-mono text-xs px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700">${a.dueDate}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // COURSES RENDERER & HANDLERS
+    // ==========================================
+    function renderCourses() {
+      const grid = document.getElementById('courses-grid');
+      grid.innerHTML = state.courses.map(c => `
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-blue-300 transition">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white">${c.code}</span>
+                <h3 class="text-lg font-bold text-slate-900 mt-2">${c.name}</h3>
+              </div>
+              <button onclick="deleteCourse('${c.id}')" class="text-slate-400 hover:text-red-600 p-1" title="Remove Course">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+            <div class="mt-4 space-y-1.5 text-xs text-slate-600">
+              <p><i class="fa-solid fa-chalkboard-user w-5 text-blue-600"></i> <strong>Instructor:</strong> ${c.instructor}</p>
+              <p><i class="fa-regular fa-clock w-5 text-blue-600"></i> <strong>Schedule:</strong> ${c.schedule}</p>
+              <p><i class="fa-solid fa-layer-group w-5 text-blue-600"></i> <strong>Credit Hours:</strong> ${c.credits} Credits</p>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Current Standing: <strong class="text-slate-900 font-mono">${c.letterGrade}</strong></span>
+            <button onclick="openCourseGradebook('${c.id}')" class="font-semibold text-blue-600 hover:underline">
+              Weighted Gradebook →
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleAddCourse(e) {
+      e.preventDefault();
+      const code = document.getElementById('course-code').value.trim().toUpperCase();
+      const name = document.getElementById('course-name').value.trim();
+      const credits = parseInt(document.getElementById('course-credits').value, 10);
+      const instructor = document.getElementById('course-instructor').value.trim();
+      const schedule = document.getElementById('course-schedule').value.trim();
+
+      const newId = 'c_' + Date.now();
+      state.courses.push({
+        id: newId,
+        code,
+        name,
+        credits,
+        instructor,
+        schedule,
+        letterGrade: 'A',
+        color: 'blue'
+      });
+
+      state.gradebookWeights[newId] = [
+        { category: 'Exams', weight: 40, avg: 95 },
+        { category: 'Projects', weight: 30, avg: 95 },
+        { category: 'Homework', weight: 20, avg: 95 },
+        { category: 'Quizzes', weight: 10, avg: 95 }
+      ];
+
+      document.getElementById('course-form').reset();
+      refreshAllViews();
+      showToast(`Added ${code}: ${name} (${credits} Credits)`);
+    }
+
+    function deleteCourse(courseId) {
+      if (state.courses.length <= 1) {
+        showToast('Keep at least one active course for the live demo!', 'fa-solid fa-triangle-exclamation text-amber-400');
+        return;
+      }
+      state.courses = state.courses.filter(c => c.id !== courseId);
+      state.assignments = state.assignments.filter(a => a.courseId !== courseId);
+      delete state.gradebookWeights[courseId];
+      refreshAllViews();
+      showToast('Course removed');
+    }
+
+    function openCourseGradebook(courseId) {
+      document.getElementById('gradebook-course-select').value = courseId;
+      switchTab('gradebook');
+    }
+
+    // ==========================================
+    // SYLLABUS & ASSIGNMENTS RENDERER
+    // ==========================================
+    function renderAssignments() {
+      const filterCourse = document.getElementById('assignment-filter-course').value;
+      const tbody = document.getElementById('assignments-table-body');
+
+      const filtered = state.assignments
+        .filter(a => filterCourse === 'ALL' || a.courseId === filterCourse)
+        .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+      const catBadge = {
+        Exams: 'bg-red-50 text-red-700 border-red-200',
+        Projects: 'bg-blue-50 text-blue-700 border-blue-200',
+        Homework: 'bg-orange-50 text-orange-700 border-orange-200',
+        Quizzes: 'bg-purple-50 text-purple-700 border-purple-200'
+      };
+
+      tbody.innerHTML = filtered.map(a => {
+        const course = state.courses.find(c => c.id === a.courseId);
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3">
+              <input type="checkbox" ${a.completed ? 'checked' : ''} onchange="toggleAssignmentDone('${a.id}')" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+            </td>
+            <td class="py-3 px-3 font-semibold ${a.completed ? 'line-through text-slate-400' : 'text-slate-900'}">${a.title}</td>
+            <td class="py-3 px-3 font-mono text-xs text-slate-600">${course ? course.code : 'N/A'}</td>
+            <td class="py-3 px-3">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-md border ${catBadge[a.category] || 'bg-slate-100'}">${a.category}</span>
+            </td>
+            <td class="py-3 px-3 font-mono text-xs text-slate-700">${a.dueDate}</td>
+            <td class="py-3 px-3 font-mono text-xs font-bold text-slate-800">${a.score !== null && a.score !== '' ? a.score + '%' : '—'}</td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="deleteAssignment('${a.id}')" class="text-slate-400 hover:text-red-600 px-2">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function handleAddAssignment(e) {
+      e.preventDefault();
+      const title = document.getElementById('task-title').value.trim();
+      const courseId = document.getElementById('task-course').value;
+      const category = document.getElementById('task-category').value;
+      const dueDate = document.getElementById('task-date').value;
+      const scoreVal = document.getElementById('task-score').value;
+
+      state.assignments.push({
+        id: 'a_' + Date.now(),
+        title,
+        courseId,
+        category,
+        dueDate,
+        score: scoreVal ? Number(scoreVal) : null,
+        completed: false
+      });
+
+      document.getElementById('task-title').value = '';
+      document.getElementById('task-score').value = '';
+      refreshAllViews();
+      showToast(`Added "${title}" to syllabus tracker & calendar`);
+    }
+
+    function toggleAssignmentDone(id) {
+      const item = state.assignments.find(a => a.id === id);
+      if (item) {
+        item.completed = !item.completed;
+        refreshAllViews();
+      }
+    }
+
+    function deleteAssignment(id) {
+      state.assignments = state.assignments.filter(a => a.id !== id);
+      refreshAllViews();
+      showToast('Assignment removed');
+    }
+
+    // ==========================================
+    // MULTI-VIEW INTERACTIVE CALENDAR
+    // ==========================================
+    function setCalendarView(view) {
+      state.calendarView = view;
+      ['day', 'week', 'month'].forEach(v => {
+        const btn = document.getElementById(`cal-btn-${v}`);
+        if (v === view) {
+          btn.className = 'cal-view-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-blue-600 shadow-2xs transition';
+        } else {
+          btn.className = 'cal-view-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 transition';
+        }
+      });
+      renderCalendar();
+    }
+
+    function shiftCalendar(delta) {
+      const d = new Date(state.calendarFocusDate);
+      if (state.calendarView === 'day') d.setDate(d.getDate() + delta);
+      else if (state.calendarView === 'week') d.setDate(d.getDate() + delta * 7);
+      else d.setMonth(d.getMonth() + delta);
+      state.calendarFocusDate = d;
+      renderCalendar();
+    }
+
+    function resetCalendarToday() {
+      state.calendarFocusDate = new Date(2025, 4, 15);
+      renderCalendar();
+    }
+
+    function formatYMD(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function renderCalendar() {
+      const viewport = document.getElementById('calendar-viewport');
+      const headerLabel = document.getElementById('calendar-header-label');
+      const focus = state.calendarFocusDate;
+
+      const catColor = {
+        Exams: 'bg-red-500 text-white',
+        Projects: 'bg-blue-600 text-white',
+        Homework: 'bg-orange-500 text-white',
+        Quizzes: 'bg-purple-600 text-white'
+      };
+
+      if (state.calendarView === 'day') {
+        const ymd = formatYMD(focus);
+        headerLabel.textContent = focus.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        const dayTasks = state.assignments.filter(a => a.dueDate === ymd);
+
+        viewport.innerHTML = `
+          <div class="p-6 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+              <span class="font-mono text-xs font-bold text-blue-600 uppercase">Daily Schedule (${ymd})</span>
+              <span class="text-xs text-slate-500">${dayTasks.length} Deliverable(s) Due</span>
+            </div>
+            ${dayTasks.length === 0 ? `<p class="text-sm text-slate-500 py-8 text-center">No syllabus assignments due on this day. Use arrows to browse May 12–21, 2025.</p>` :
+              dayTasks.map(t => {
+                const c = state.courses.find(x => x.id === t.courseId);
+                return `
+                  <div class="p-4 rounded-xl bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
+                    <div>
+                      <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded ${catColor[t.category] || 'bg-slate-700 text-white'}">${t.category}</span>
+                      <h4 class="font-bold text-slate-900 mt-1.5">${t.title}</h4>
+                      <p class="text-xs text-slate-500">${c ? c.code + ' — ' + c.name : ''}</p>
+                    </div>
+                    <span class="font-mono text-xs font-semibold text-slate-600">Due 11:59 PM</span>
+                  </div>
+                `;
+              }).join('')
+            }
+          </div>
+        `;
+      } else if (state.calendarView === 'week') {
+        const startOfWeek = new Date(focus);
+        startOfWeek.setDate(focus.getDate() - focus.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        headerLabel.textContent = `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+        let colsHtml = '';
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(startOfWeek);
+          day.setDate(startOfWeek.getDate() + i);
+          const ymd = formatYMD(day);
+          const items = state.assignments.filter(a => a.dueDate === ymd);
+          const isAnchor = ymd === '2025-05-15';
+
+          colsHtml += `
+            <div class="min-h-[220px] p-2.5 rounded-xl border ${isAnchor ? 'border-blue-500 bg-blue-50/30' : 'border-slate-200 bg-slate-50/60'} flex flex-col">
+              <div class="text-center pb-2 mb-2 border-b border-slate-200/80">
+                <p class="text-[11px] font-mono uppercase text-slate-500">${day.toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                <p class="text-sm font-bold ${isAnchor ? 'text-blue-600' : 'text-slate-800'}">${day.getDate()}</p>
+              </div>
+              <div class="space-y-1.5 flex-1">
+                ${items.map(t => {
+                  const c = state.courses.find(x => x.id === t.courseId);
+                  return `
+                    <div class="p-2 rounded-lg text-[11px] leading-tight ${catColor[t.category] || 'bg-slate-700 text-white'} shadow-2xs">
+                      <p class="font-mono font-bold opacity-90">${c ? c.code : ''}</p>
+                      <p class="font-semibold mt-0.5">${t.title}</p>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+        viewport.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-7 gap-2.5">${colsHtml}</div>`;
+      } else {
+        // Month View
+        const year = focus.getFullYear();
+        const month = focus.getMonth();
+        headerLabel.textContent = focus.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let cells = '';
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const headerRow = dayNames.map(d => `<div class="text-center text-xs font-mono uppercase text-slate-500 py-2">${d}</div>`).join('');
+
+        for (let i = 0; i < firstDay; i++) {
+          cells += `<div class="min-h-[92px] rounded-xl bg-slate-50/40 border border-slate-100"></div>`;
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const cellDate = new Date(year, month, d);
+          const ymd = formatYMD(cellDate);
+          const items = state.assignments.filter(a => a.dueDate === ymd);
+          const isDemoDay = ymd === '2025-05-15';
+
+          cells += `
+            <div onclick="selectCalendarDay(${year}, ${month}, ${d})" class="cursor-pointer min-h-[92px] p-2 rounded-xl border ${isDemoDay ? 'border-blue-500 bg-blue-50/30' : 'border-slate-200/80 bg-white hover:border-blue-300'} transition flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold ${isDemoDay ? 'w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center' : 'text-slate-700'}">${d}</span>
+                ${isDemoDay ? '<span class="text-[10px] font-mono text-blue-600 font-semibold">DEMO</span>' : ''}
+              </div>
+              <div class="space-y-1 mt-1">
+                ${items.map(t => {
+                  const c = state.courses.find(x => x.id === t.courseId);
+                  return `<div class="px-1.5 py-0.5 rounded text-[10px] font-medium truncate ${catColor[t.category] || 'bg-slate-700 text-white'}">${c ? c.code + ': ' : ''}${t.title}</div>`;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        viewport.innerHTML = `
+          <div class="grid grid-cols-7 gap-2 mb-1">${headerRow}</div>
+          <div class="grid grid-cols-7 gap-2">${cells}</div>
+        `;
+      }
+    }
+
+    function selectCalendarDay(year, month, day) {
+      state.calendarFocusDate = new Date(year, month, day);
+      setCalendarView('day');
+    }
+
+    // ==========================================
+    // WEIGHTED GRADEBOOK ENGINE
+    // ==========================================
+    function scoreToLetter(num) {
+      if (num >= 93) return 'A';
+      if (num >= 90) return 'A-';
+      if (num >= 87) return 'B+';
+      if (num >= 83) return 'B';
+      if (num >= 80) return 'B-';
+      if (num >= 77) return 'C+';
+      if (num >= 73) return 'C';
+      if (num >= 70) return 'C-';
+      if (num >= 67) return 'D+';
+      if (num >= 60) return 'D';
+      return 'F';
+    }
+
+    function renderGradebook() {
+      const courseId = document.getElementById('gradebook-course-select').value || state.courses[0]?.id;
+      const course = state.courses.find(c => c.id === courseId);
+      if (!course) return;
+
+      const weights = state.gradebookWeights[courseId] || [];
+      document.getElementById('gb-course-title').textContent = `${course.code} — ${course.name}`;
+
+      let totalWeight = 0;
+      let weightedSum = 0;
+
+      const listEl = document.getElementById('gradebook-categories-list');
+      listEl.innerHTML = weights.map((w, idx) => {
+        totalWeight += Number(w.weight);
+        weightedSum += (Number(w.weight) * Number(w.avg)) / 100;
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-4">
+              <span class="font-bold text-sm text-slate-900">${w.category}</span>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div class="bg-blue-600 h-full rounded-full" style="width: ${Math.min(100, w.weight)}%"></div>
+              </div>
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[11px] font-mono uppercase text-slate-500">Syllabus Weight (%)</label>
+              <input type="number" min="0" max="100" value="${w.weight}" oninput="updateCategoryWeight('${courseId}', ${idx}, 'weight', this.value)" class="mt-1 w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-sm">
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[11px] font-mono uppercase text-slate-500">Category Average (%)</label>
+              <input type="number" min="0" max="100" value="${w.avg}" oninput="updateCategoryWeight('${courseId}', ${idx}, 'avg', this.value)" class="mt-1 w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-sm">
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const badge = document.getElementById('weight-total-badge');
+      if (totalWeight === 100) {
+        badge.className = 'px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        badge.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Total Weight: 100%`;
+      } else {
+        badge.className = 'px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>Total Weight: ${totalWeight}% (Check Manual 100% Sum)`;
+      }
+
+      const finalScore = totalWeight > 0 ? (weightedSum / (totalWeight / 100)) : 0;
+      const letter = scoreToLetter(finalScore);
+
+      document.getElementById('gb-numeric-grade').textContent = `${finalScore.toFixed(1)}%`;
+      document.getElementById('gb-letter-grade').textContent = letter;
+
+      if (courseId === 'c1') {
+        document.getElementById('stat-csc380-avg').textContent = `${finalScore.toFixed(1)}%`;
+      }
+    }
+
+    function updateCategoryWeight(courseId, index, field, val) {
+      const num = Number(val) || 0;
+      state.gradebookWeights[courseId][index][field] = num;
+      renderGradebook();
+    }
+
+    function syncGradebookToGPA() {
+      const courseId = document.getElementById('gradebook-course-select').value;
+      const course = state.courses.find(c => c.id === courseId);
+      const letter = document.getElementById('gb-letter-grade').textContent;
+      if (course) {
+        course.letterGrade = letter;
+        renderGpaCourses();
+        calculateGPA();
+        renderDashboard();
+        showToast(`Synced ${course.code} grade (${letter}) to GPA Calculator`);
+      }
+    }
+
+    // ==========================================
+    // GPA CALCULATOR (RAENA'S SECTION)
+    // ==========================================
+    function renderGpaCourses() {
+      const container = document.getElementById('gpa-courses-container');
+      const gradeOptions = Object.keys(GRADE_POINTS);
+
+      container.innerHTML = state.courses.map((c, idx) => `
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+          <div class="sm:col-span-5">
+            <label class="block text-[10px] font-mono uppercase text-slate-400">Course</label>
+            <input type="text" value="${c.code} — ${c.name}" oninput="updateGpaCourseName(${idx}, this.value)" class="w-full font-semibold text-sm text-slate-900 bg-transparent border-b border-transparent focus:border-blue-500 focus:outline-none py-0.5">
+          </div>
+          <div class="sm:col-span-3">
+            <label class="block text-[10px] font-mono uppercase text-slate-400">Credit Hours</label>
+            <input type="number" min="1" max="6" value="${c.credits}" oninput="updateGpaCourseCredits(${idx}, this.value)" class="mt-0.5 w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-sm">
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block text-[10px] font-mono uppercase text-slate-400">Letter Grade</label>
+            <select onchange="updateGpaCourseGrade(${idx}, this.value)" class="mt-0.5 w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-sm text-blue-600">
+              ${gradeOptions.map(g => `<option value="${g}" ${c.letterGrade === g ? 'selected' : ''}>${g} (${GRADE_POINTS[g].toFixed(1)} pts)</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateGpaCourseName(idx, val) {
+      state.courses[idx].name = val;
+    }
+
+    function updateGpaCourseCredits(idx, val) {
+      state.courses[idx].credits = Math.max(1, Number(val) || 3);
+      calculateGPA();
+      renderDashboard();
+    }
+
+    function updateGpaCourseGrade(idx, val) {
+      state.courses[idx].letterGrade = val;
+      calculateGPA();
+      renderDashboard();
+    }
+
+    function addGpaRow() {
+      const id = 'c_' + Date.now();
+      state.courses.push({
+        id,
+        code: `ELC ${100 + state.courses.length}`,
+        name: 'Elective Course',
+        credits: 3,
+        instructor: 'Staff',
+        schedule: 'TBA',
+        letterGrade: 'A',
+        color: 'blue'
+      });
+      state.gradebookWeights[id] = [
+        { category: 'Exams', weight: 50, avg: 95 },
+        { category: 'Projects', weight: 50, avg: 95 }
+      ];
+      refreshAllViews();
+      showToast('Added course row to GPA Calculator');
+    }
+
+    function calculateGPA() {
+      let semCredits = 0;
+      let semQualityPoints = 0;
+
+      state.courses.forEach(c => {
+        const cr = Number(c.credits) || 0;
+        const pts = GRADE_POINTS[c.letterGrade] ?? 4.0;
+        semCredits += cr;
+        semQualityPoints += cr * pts;
+      });
+
+      const semGPA = semCredits > 0 ? (semQualityPoints / semCredits) : 0;
+
+      const priorGPA = parseFloat(document.getElementById('prior-gpa').value) || 0;
+      const priorCredits = parseFloat(document.getElementById('prior-credits').value) || 0;
+      const priorPoints = priorGPA * priorCredits;
+
+      const totalCredits = semCredits + priorCredits;
+      const cumulativeGPA = totalCredits > 0 ? ((semQualityPoints + priorPoints) / totalCredits) : semGPA;
+
+      document.getElementById('gpa-semester-display').textContent = semGPA.toFixed(2);
+      document.getElementById('gpa-semester-credits').textContent = `${semCredits} Semester Credits`;
+      document.getElementById('gpa-semester-points').textContent = `${semQualityPoints.toFixed(1)} Quality Points`;
+
+      document.getElementById('gpa-cumulative-display').textContent = cumulativeGPA.toFixed(2);
+      document.getElementById('gpa-total-credits').textContent = `${totalCredits} Total Credits`;
+
+      document.getElementById('stat-semester-gpa').textContent = semGPA.toFixed(2);
+      document.getElementById('stat-cumulative-gpa').textContent = `Est. Cumulative: ${cumulativeGPA.toFixed(2)}`;
+    }
+
+    // Initialize Application on Load
+    window.onload = function () {
+      const todayInput = document.getElementById('task-date');
+      if (todayInput) todayInput.value = '2025-05-18';
+      loadSampleData();
+    };
+  </script>
+</body>
+</html>
