@@ -24,7 +24,7 @@ AceIT is an all-in-one web-based academic organization platform built for univer
 ## Setup & Installation Instructions
 1. Clone the repository to your local machine:
    ```bash
-   git clone [https://github.com/your-username/aceit-academic-planner.git](https://github.com/your-username/aceit-academic-planner.git)
+   git clone https://github.com/alhicks86282/AceIT.git
 ## How to run the project
 npm start
 ## Current Project Status
